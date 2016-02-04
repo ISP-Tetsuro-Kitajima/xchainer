@@ -3,6 +3,7 @@ import unittest
 
 import chainer.functions as F
 import chainer.links as L
+import numpy
 
 class TestNNP(NNpacker):
     def __init__(self):
@@ -15,7 +16,7 @@ class TestNNP(NNpacker):
         NNpacker.__init__(self, layers, entryPoints=eps, children=children)
 
     def network(self, e_data, c_data, train):
-        return e_data['target'].data + " AND " + c_data['child'].data
+        return e_data['target'].data + c_data['child'].data
 
 
 class ChildNNP(NNpacker):
@@ -43,8 +44,8 @@ class NNpackerTestCase(unittest.TestCase):
     def test_insource(self):
         print "===Test `insource` method==="
         datasets = {
-            'target': "this is target data",
-            'other': "this is not target data"
+            'target': numpy.array(["this", "is", "target", "data",   ""]),
+            'other':  numpy.array(["this", "is", "not",     "target", "data"])
         }
 
         entryDatas = self.nnp.insource(datasets)
@@ -54,7 +55,7 @@ class NNpackerTestCase(unittest.TestCase):
 
     def test_outsource(self):
         print "===Test `outsource` method==="
-        datasets = {"chtarget": "this is target data of child"}
+        datasets = {"chtarget": numpy.array(["this", "is", "target", "data", "of", "child"]),}
         childrenOutput = self.nnp.outsource(datasets, False)
         self.assertTrue("child" in childrenOutput)
         print "...done\n"
@@ -62,11 +63,11 @@ class NNpackerTestCase(unittest.TestCase):
     def test_execute(self):
         print "===Test `execute` method==="
         datasets = {
-            "target": "This is target data.",
-            "chtarget": "This is target data for child."
+            'target':   numpy.array([1]),
+            'chtarget': numpy.array([5])
         }
         result = self.nnp.execute(datasets)
-        expected = datasets["target"] + " AND " + datasets["chtarget"]
+        expected = datasets["target"] + datasets["chtarget"]
         self.assertEqual(result, expected)
         print "...done\n"
 
