@@ -3,8 +3,9 @@ import unittest
 import sys
 
 import numpy as np
-from chainer import FunctionSet, Variable, optimizers
+from chainer import Chain, Variable, optimizers
 import chainer.functions as F
+import chainer.links as L
 
 from sklearn.base import ClassifierMixin
 from sklearn import cross_validation
@@ -14,10 +15,10 @@ from sklearn.datasets import fetch_mldata
 
 class TestNNM(NNmanager, ClassifierMixin):
     def __init__(self, logging=False):
-        model = FunctionSet(
-            l1=F.Linear(784, 100),
-            l2=F.Linear(100, 100),
-            l3=F.Linear(100,  10)
+        model = Chain(
+            l1=L.Linear(784, 100),
+            l2=L.Linear(100, 100),
+            l3=L.Linear(100,  10)
         )
 
         optimizer = optimizers.SGD()
