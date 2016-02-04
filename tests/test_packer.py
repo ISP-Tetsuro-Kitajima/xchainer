@@ -2,13 +2,13 @@ from xchainer.packer import NNpacker
 import unittest
 
 import chainer.functions as F
-
+import chainer.links as L
 
 class TestNNP(NNpacker):
     def __init__(self):
         layers = {
-            'l1': F.Linear(784, 100),
-            'l2': F.Linear(100, 100)
+            'l1': L.Linear(784, 100),
+            'l2': L.Linear(100, 100)
         }
         eps = ['target']
         children = {'child': ChildNNP()}
