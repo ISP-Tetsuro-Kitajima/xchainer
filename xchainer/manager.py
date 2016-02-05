@@ -2,15 +2,20 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from chainer import Variable
+from chainer import Variable, cuda
 import chainer.functions as F
 
 
 class NNmanager (BaseEstimator):
-    def __init__(self, model, optimizer, lossFunction, **params):
+    def __init__(self, model, optimizer, lossFunction, gpu=True, **params):
+        # CUDAデバイスの設定
+        self.gpu = gpu
         # 学習器の初期化
         # ネットワークの定義
-        self.model = model
+        if gpu:
+            self.model = model.to_gpu()
+        else:
+            self.model = model
         # オプティマイザの設定
         self.optimizer = optimizer
         self.optimizer.setup(self.model)
@@ -28,7 +33,14 @@ class NNmanager (BaseEstimator):
         return self
 
     def predict(self, x_test):
-        output = self.forward(x_test, train=False)
+        if self.gpu:
+            # GPU向け実装
+            x_test = cuda.to_gpu(x_test)
+            output = self.forward(x_test, train=False)
+            output.data = cuda.to_cpu(output.data)
+        else:
+            # CPU向け実装
+            output = self.forward(x_test, train=False)
         return self.trimOutput(output)
 
     def trimOutput(self, output):
@@ -70,6 +82,9 @@ class NNmanager (BaseEstimator):
         for i in xrange(0, trainsize, self.batchsize):
             x_batch = x_train[indexes[i: i + self.batchsize]]
             y_batch = y_train[indexes[i: i + self.batchsize]]
+            if self.gpu:
+                x_batch = cuda.to_gpu(x_batch)
+                y_batch = cuda.to_gpu(y_batch)
             self.optimizer.zero_grads()
             y_predict = self.forward(x_batch, train=True)
             loss, accuracy = self.backward(y_predict, y_batch)
