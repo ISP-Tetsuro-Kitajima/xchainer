@@ -24,7 +24,7 @@ class TestNNM(NNmanager, ClassifierMixin):
         optimizer = optimizers.SGD()
         lossFunction = F.softmax_cross_entropy
         params = {'epoch': 5, 'batchsize': 1000, 'logging': logging}
-        NNmanager.__init__(self, model, optimizer, lossFunction, gpu=False, **params)
+        NNmanager.__init__(self, model, optimizer, lossFunction, **params)
 
     def trimOutput(self, output):
         y_trimed = output.data.argmax(axis=1)
@@ -60,7 +60,7 @@ class NNmanagerTestCase(unittest.TestCase):
         self.setup = True
 
     def test_fit(self):
-        print "===Test `fit` method==="
+        print "===Test `fit` method with GPU==="
         print "This could take a while..."
         x_train = self.x_all[self.trainIndexes]
         y_train = self.y_all[self.trainIndexes]
@@ -70,7 +70,7 @@ class NNmanagerTestCase(unittest.TestCase):
 
     def test_predict(self):
         # y_predict should have same shape as y_test
-        print "===Test `predict` method==="
+        print "===Test `predict` method with GPU==="
         print "This could take a while..."
         x_test = self.x_all[self.testIndexes]
         y_test = self.y_all[self.testIndexes]
@@ -79,7 +79,7 @@ class NNmanagerTestCase(unittest.TestCase):
         print "...done\n"
 
     def test_withsk_crossval(self):
-        print "===Test learning with `cross_val_score` of sklearn==="
+        print "===Test learning with `cross_val_score` of sklearn with GPU==="
         print "logging learning process below..."
         nnm = TestNNM(logging=True)
         x = self.x_all
